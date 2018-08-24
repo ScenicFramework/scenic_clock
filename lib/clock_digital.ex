@@ -11,48 +11,50 @@ defmodule Scenic.Clock.Digital do
 
   alias Scenic.Graph
   # alias Scenic.Component.Input.Dropdown
-  import Scenic.Primitives, only: [
-    {:text, 2}, {:text, 3}
-  ]
+  import Scenic.Primitives,
+    only: [
+      {:text, 2},
+      {:text, 3}
+    ]
 
   # import IEx
 
   # formats setup
   @formats %{
-    day_time_12:    "%a %l:%M %p",
-    day_time_12_s:  "%a %l:%M:%S %p",
-    time_12:        "%l:%M %p",
-    day_time_24:    "%a %l:%M",
-    day_time_24_s:  "%a %l:%M:%S",
-    time_24:        "%H:%M",
-    time_24_s:      "%H:%M:%S",
+    day_time_12: "%a %l:%M %p",
+    day_time_12_s: "%a %l:%M:%S %p",
+    time_12: "%l:%M %p",
+    day_time_24: "%a %l:%M",
+    day_time_24_s: "%a %l:%M:%S",
+    time_24: "%H:%M",
+    time_24_s: "%H:%M:%S"
   }
-  @default_format   @formats[:day_time_12]
+  @default_format @formats[:day_time_12]
 
   @default_timezone "GMT"
 
-
   # theme is draw_color
   @themes %{
-    light:    {:black, :clear},
-    dark:     {:white, :clear},
+    light: {:black, :clear},
+    dark: {:white, :clear}
   }
-  @default_theme      :dark
-  @default_align      :right
-  @default_font_size  20
+  @default_theme :dark
+  @default_align :right
+  @default_font_size 20
 
+  # --------------------------------------------------------
+  def verify(opts) when is_list(opts), do: {:ok, opts}
+  def verify(_), do: :invalid_data
 
-  #--------------------------------------------------------
-  def verify( opts ) when is_list(opts), do: {:ok, opts}
-  def verify( _ ), do: :invalid_data
-
-  #--------------------------------------------------------
-  def init( opts, _args ) do
+  # --------------------------------------------------------
+  def init(opts, _args) do
     # get the theme
-    theme = case opts[:theme] do
-      {_,_} = theme -> theme
-      type -> Map.get(@themes, type) || Map.get(@themes, @default_theme)
-    end
+    theme =
+      case opts[:theme] do
+        {_, _} = theme -> theme
+        type -> Map.get(@themes, type) || Map.get(@themes, @default_theme)
+      end
+
     {draw_color, _} = theme
 
     # get the formatting options
@@ -60,30 +62,34 @@ defmodule Scenic.Clock.Digital do
     size = opts[:size] || @default_font_size
 
     # get the requested time format
-    format =case opts[:format] do
-      nil -> @default_format
-      other -> @formats[other] || @default_format
-    end
+    format =
+      case opts[:format] do
+        nil -> @default_format
+        other -> @formats[other] || @default_format
+      end
 
     # get the timezone
-    timezone = case  Enum.member?(Timex.timezones(), opts[:timezone]) do
-      true -> opts[:timezone]
-      false -> Timex.Timezone.local() || @default_timezone
-    end
+    timezone =
+      case Enum.member?(Timex.timezones(), opts[:timezone]) do
+        true -> opts[:timezone]
+        false -> Timex.Timezone.local() || @default_timezone
+      end
 
     # set up the requested graph
-    graph = Graph.build(font_size: size, t: {0, size})
-    |> text("", fill: draw_color, id: :time, text_align: align)
+    graph =
+      Graph.build(font_size: size, t: {0, size})
+      |> text("", fill: draw_color, id: :time, text_align: align)
 
-    state = %{
-      graph: graph,
-      format: format,
-      timezone: timezone,
-      timer: nil,
-      last: nil,
-    }
-    # start up the graph
-    |> update_time()
+    state =
+      %{
+        graph: graph,
+        format: format,
+        timezone: timezone,
+        timer: nil,
+        last: nil
+      }
+      # start up the graph
+      |> update_time()
 
     # send a message to self to start the clock a fraction of a second
     # into the future to hopefully line it up closer to when the seconds
@@ -91,45 +97,49 @@ defmodule Scenic.Clock.Digital do
     # the one second mark, which is way better than just slighty before.
     # avoid trunc errors and such that way even if it means the second
     # timer is one millisecond behind the actual time.
-    {microseconds,_} = Time.utc_now.microsecond
-    Process.send_after(self(), :start_clock, 1001 - trunc(microseconds / 1000) )
+    {microseconds, _} = Time.utc_now().microsecond
+    Process.send_after(self(), :start_clock, 1001 - trunc(microseconds / 1000))
 
-    {:ok, state }
+    {:ok, state}
   end
 
-  #--------------------------------------------------------
+  # --------------------------------------------------------
   # should be shortly after the actual one-second mark
-  def handle_info( :start_clock, state ) do
+  def handle_info(:start_clock, state) do
     # start the timer on a one-second interval
     {:ok, timer} = :timer.send_interval(1000, :second)
 
     # update the clock
-    state = update_time( state )
+    state = update_time(state)
 
-    {:noreply, %{state | timer: timer} }
+    {:noreply, %{state | timer: timer}}
   end
 
-  #--------------------------------------------------------
-  def handle_info( :second, state ) do
-    {:noreply, update_time( state )}
+  # --------------------------------------------------------
+  def handle_info(:second, state) do
+    {:noreply, update_time(state)}
   end
 
-  #--------------------------------------------------------
+  # --------------------------------------------------------
   defp squash(string) do
     string
-    |> String.trim
+    |> String.trim()
     |> String.replace(~r/\s{2,}/, " ")
   end
 
-  #--------------------------------------------------------
-  defp update_time( %{
-    format: format,
-    graph: graph,
-    timezone: timezone,
-    last: last
-  } = state ) do
-    {:ok, time} = Timex.now(timezone)
-    |> Timex.format( format, :strftime )
+  # --------------------------------------------------------
+  defp update_time(
+         %{
+           format: format,
+           graph: graph,
+           timezone: timezone,
+           last: last
+         } = state
+       ) do
+    {:ok, time} =
+      Timex.now(timezone)
+      |> Timex.format(format, :strftime)
+
     time = squash(time)
 
     if time != last do
@@ -139,5 +149,4 @@ defmodule Scenic.Clock.Digital do
 
     %{state | last: time}
   end
-
 end
