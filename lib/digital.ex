@@ -11,7 +11,7 @@ defmodule Scenic.Clock.Digital do
   use Scenic.Component, has_children: false
 
   alias Scenic.Graph
-  alias Scenic.Primitive.Style.Theme
+  # alias Scenic.Primitive.Style.Theme
 
 
   # alias Scenic.Component.Input.Dropdown
@@ -25,7 +25,7 @@ defmodule Scenic.Clock.Digital do
   @default_timezone "GMT"
 
   # theme
-  @default_theme    :dark
+  # @default_theme    :dark
 
   #--------------------------------------------------------
   def verify( opts ) when is_list(opts), do: {:ok, opts}
@@ -35,8 +35,8 @@ defmodule Scenic.Clock.Digital do
   def init( opts, styles, _viewport ) do
 
     # theme is passed in as an inherited style
-    theme = (styles[:theme] || Theme.preset(@default_theme))
-    |> Theme.normalize()
+    # theme = (styles[:theme] || Theme.preset(@default_theme))
+    # |> Theme.normalize()
 
     # get the timezone
     timezone = case  Enum.member?(Timex.timezones(), opts[:timezone]) do

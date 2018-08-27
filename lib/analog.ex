@@ -19,7 +19,7 @@ defmodule Scenic.Clock.Analog do
     {:circle, 3}, {:line, 3}, {:update_opts, 2}
   ]
 
-  import IEx
+  # import IEx
 
   # analog clock setup
   @default_radius  10
