@@ -65,7 +65,7 @@ defmodule Scenic.Clock.Components do
   The next example makes the same clock as before, but shows the seconds hand.
 
       graph
-      |> analog_clock( [seconds: true], translate: {20, 20} )
+      |> analog_clock( seconds: true, translate: {20, 20} )
 
 
   """
@@ -102,25 +102,20 @@ defmodule Scenic.Clock.Components do
 
   Digital clocks honor the following list of extra options.
   * `:timezone` - which timezone to display the time in. Should be one of the timezones supported by the Timex Hex package. See `Timex.timezones()`. The default is whatever Timex sais is the system timexone.
-  * `:seconds` - true or false. Show the seconds hand. Note: Showing the seconds hand uses more energy by rendering the scene every second. The default is `false`.
+  * `:format` - strftime format for the time string. Default is `"%a %l:%M %p"`.
+
+  For help building a strftime format, see [https://foragoodstrftime.com/](https://foragoodstrftime.com/).
 
 
   ### Styles
 
-  Digital Clocks honor the following styles
+  Digital Clocks honors all the styles you would expect to render text.
   
-  * `:font` - The font to render the clock in. The default is `:roboto`
-  * `:font_size` - The font size of the clock. The default is `20`
-  * `:font_blur` - defaults to no blur
-  * `:text_align` - defaults to `:right`
-  * `:hidden` - If `false` the clock is rendered. If `true`, it is skipped. The default
-    is `false`.
-  * `:theme` - The color set used to draw. See below. The default is `:dark`
 
   ## Theme
 
-  To pass in a custom theme, supply a map with at least the following entries:
-  * `:text` - the color of the clock text
+  The Digital clock does not use the current theme for coloring. Add a :fill style
+  instead, just as you would for a text primitive.
 
   ### Examples
 
@@ -128,11 +123,6 @@ defmodule Scenic.Clock.Components do
 
       graph
       |> digital_clock( translate: {20, 20} )
-
-  The next example makes the same clock as before, but shows the seconds hand.
-
-      graph
-      |> digital_clock( [seconds: true], translate: {20, 20} )
 
 
   """
@@ -142,7 +132,7 @@ defmodule Scenic.Clock.Components do
 
     {component_opts, standard_opts} = {[], options}
     |> extract_option( :timezone )
-    |> extract_option( :seconds )
+    |> extract_option( :format )
 
     add_to_graph( g, Clock.Digital, component_opts, standard_opts )
   end
@@ -150,7 +140,7 @@ defmodule Scenic.Clock.Components do
   def digital_clock( %Primitive{module: Primitive.SceneRef} = p, options ) do
     {component_opts, standard_opts} = {[], options}
     |> extract_option( :timezone )
-    |> extract_option( :seconds )
+    |> extract_option( :format )
 
     modify( p, Component.Digital, component_opts, standard_opts )
   end

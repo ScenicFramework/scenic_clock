@@ -15,31 +15,17 @@ defmodule Scenic.Clock.Digital do
 
 
   # alias Scenic.Component.Input.Dropdown
-  import Scenic.Primitives, only: [
-    {:text, 2}, {:text, 3}, {:update_opts, 2}
-  ]
+  import Scenic.Primitives, only: [ {:text, 2}, {:text, 3} ]
 
   # import IEx
 
   # formats setup
-  @formats %{
-    day_time_12:    "%a %l:%M %p",
-    day_time_12_s:  "%a %l:%M:%S %p",
-    time_12:        "%l:%M %p",
-    day_time_24:    "%a %l:%M",
-    day_time_24_s:  "%a %l:%M:%S",
-    time_24:        "%H:%M",
-    time_24_s:      "%H:%M:%S",
-  }
-  @default_format   @formats[:day_time_12]
+  @default_format   "%a %l:%M %p"
 
   @default_timezone "GMT"
 
   # theme
-  @default_align      :right
-  @default_font_size  20
-  @default_font_blur  0
-  @default_theme      :dark
+  @default_theme    :dark
 
   #--------------------------------------------------------
   def verify( opts ) when is_list(opts), do: {:ok, opts}
@@ -52,26 +38,29 @@ defmodule Scenic.Clock.Digital do
     theme = (styles[:theme] || Theme.preset(@default_theme))
     |> Theme.normalize()
 
-
-    # get the formatting options
-    align = opts[:align] || @default_align
-    size = opts[:size] || @default_font_size
-
-    # get the requested time format
-    format =case opts[:format] do
-      nil -> @default_format
-      other -> @formats[other] || @default_format
-    end
-
     # get the timezone
     timezone = case  Enum.member?(Timex.timezones(), opts[:timezone]) do
       true -> opts[:timezone]
       false -> Timex.Timezone.local() || @default_timezone
     end
 
+    # get and validate the requested time format
+    format =case opts[:format] do
+      format when is_bitstring(format) ->
+        # doubleck check that is is a valid
+        Timex.now(timezone)
+        |> Timex.format( format, :strftime )
+        |> case do
+          {:ok, _} -> format
+          _ -> @default_format
+        end
+      _ -> @default_format
+    end
+
     # set up the requested graph
-    graph = Graph.build(font_size: size, t: {0, size})
-    |> text("", fill: theme.text, id: :time, text_align: align)
+    graph = Graph.build(styles: styles)
+    # |> text("", fill: theme.text, id: :time)
+    |> text("", id: :time)
 
     state = %{
       graph: graph,

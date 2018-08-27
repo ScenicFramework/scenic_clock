@@ -72,7 +72,7 @@ defmodule Scenic.Clock.Analog do
 
 
     # set up the main part of the clock
-    graph = Graph.build(t: {-radius,radius})
+    graph = Graph.build()
     |> circle(radius, fill: theme.background, stroke: {thick, theme.border})
     |> line({{0,back_size}, {0, hour_size}}, pin: {0,0}, stroke: {thick, hour_color}, id: :hour_hand)
     |> line({{0,back_size}, {0, minute_size}}, pin: {0,0}, stroke: {thick, minute_color}, id: :minute_hand)
