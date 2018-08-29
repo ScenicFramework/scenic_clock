@@ -17,6 +17,9 @@ defmodule Scenic.Clock.Components do
   @moduledoc """
   A set of helper functions to make it easy to add, or modify, clocks
   to a graph.
+
+
+  THESE DOCS NEED TO BE UPDATED
   """
 
 
@@ -72,24 +75,11 @@ defmodule Scenic.Clock.Components do
   def analog_clock( graph, options \\ [] )
 
   def analog_clock( %Graph{} = g, options ) do
-
-    {component_opts, standard_opts} = {[], options}
-    |> extract_option( :radius )
-    |> extract_option( :timezone )
-    |> extract_option( :seconds )
-    |> extract_option( :ticks )
-
-    add_to_graph( g, Clock.Analog, component_opts, standard_opts )
+    add_to_graph( g, Clock.Analog, nil, options )
   end
 
   def analog_clock( %Primitive{module: Primitive.SceneRef} = p, options ) do
-    {component_opts, standard_opts} = {[], options}
-    |> extract_option( :radius )
-    |> extract_option( :timezone )
-    |> extract_option( :seconds )
-    |> extract_option( :ticks )
-
-    modify( p, Component.Analog, component_opts, standard_opts )
+    modify( p, Component.Analog, nil, options )
   end
 
  #--------------------------------------------------------
@@ -129,36 +119,15 @@ defmodule Scenic.Clock.Components do
   def digital_clock( graph, options \\ [] )
 
   def digital_clock( %Graph{} = g, options ) do
-
-    {component_opts, standard_opts} = {[], options}
-    |> extract_option( :timezone )
-    |> extract_option( :format )
-
-    add_to_graph( g, Clock.Digital, component_opts, standard_opts )
+    add_to_graph( g, Clock.Digital, nil, options )
   end
 
   def digital_clock( %Primitive{module: Primitive.SceneRef} = p, options ) do
-    {component_opts, standard_opts} = {[], options}
-    |> extract_option( :timezone )
-    |> extract_option( :format )
-
-    modify( p, Component.Digital, component_opts, standard_opts )
+    modify( p, Component.Digital, nil, options )
   end
 
   #============================================================================
   # internal utilities
-
-  defp extract_option( {options, source}, key ) do
-    case Keyword.fetch(source, key) do
-      {:ok, value} ->
-        {
-          [ {key, value} | options ],
-          Enum.reject(source, fn({k,_}) -> k == key end)
-        }
-      _ ->
-        {options, source}
-    end
-  end
 
   defp add_to_graph( %Graph{} = g, mod, data, options ) do
     mod.verify!(data)

@@ -38,24 +38,25 @@ defmodule Scenic.Clock.Analog do
 
 
   #--------------------------------------------------------
-  def verify( opts ) when is_list(opts), do: {:ok, opts}
+  def verify( nil ), do: {:ok, nil}
   def verify( _ ), do: :invalid_data
 
   #--------------------------------------------------------
-  def init( opts, styles, _viewport ) do
+  def init( _, opts ) do
+    styles = opts[:styles]
 
     # theme is passed in as an inherited style
     theme = (styles[:theme] || Theme.preset(@default_theme))
     |> Theme.normalize()
 
     # confirm the timezone
-    timezone = case  Enum.member?(Timex.timezones(), opts[:timezone]) do
-      true -> opts[:timezone]
+    timezone = case  Enum.member?(Timex.timezones(), styles[:timezone]) do
+      true -> styles[:timezone]
       false -> Timex.Timezone.local() || @default_timezone
     end
 
     # get and calc the sizes 
-    radius = opts[:radius] || @default_radius
+    radius = styles[:radius] || @default_radius
     back_size = radius * @back_size_ratio
     hour_size = radius * @hour_size_ratio
     minute_size = radius * @minute_size_ratio
@@ -78,7 +79,7 @@ defmodule Scenic.Clock.Analog do
     |> line({{0,back_size}, {0, minute_size}}, pin: {0,0}, stroke: {thick, minute_color}, id: :minute_hand)
 
     # add the optional second hand if requested
-    graph = case !!opts[:seconds] do
+    graph = case !!styles[:seconds] do
       true ->
         second_color = Map.get(theme, :second, theme.border)
         line(
@@ -92,9 +93,9 @@ defmodule Scenic.Clock.Analog do
     end
 
     # add the tick marks if requested
-    graph = case opts[:ticks] do
+    graph = case styles[:ticks] do
       nil -> radius >= @min_radius_for_default_ticks
-      _ -> !!opts[:ticks]
+      _ -> !!styles[:ticks]
     end
     |> case do
       true ->
@@ -117,7 +118,7 @@ defmodule Scenic.Clock.Analog do
       timezone: timezone,
       timer: nil,
       last: nil,
-      seconds: !!opts[:seconds]
+      seconds: !!styles[:seconds]
     }
     # start up the graph
     |> update_time()

@@ -28,24 +28,21 @@ defmodule Scenic.Clock.Digital do
   # @default_theme    :dark
 
   #--------------------------------------------------------
-  def verify( opts ) when is_list(opts), do: {:ok, opts}
+  def verify( nil ), do: {:ok, nil}
   def verify( _ ), do: :invalid_data
 
   #--------------------------------------------------------
-  def init( opts, styles, _viewport ) do
-
-    # theme is passed in as an inherited style
-    # theme = (styles[:theme] || Theme.preset(@default_theme))
-    # |> Theme.normalize()
+  def init( _, opts ) do
+    styles = opts[:styles]
 
     # get the timezone
-    timezone = case  Enum.member?(Timex.timezones(), opts[:timezone]) do
-      true -> opts[:timezone]
+    timezone = case  Enum.member?(Timex.timezones(), styles[:timezone]) do
+      true -> styles[:timezone]
       false -> Timex.Timezone.local() || @default_timezone
     end
 
     # get and validate the requested time format
-    format =case opts[:format] do
+    format =case styles[:format] do
       format when is_bitstring(format) ->
         # doubleck check that is is a valid
         Timex.now(timezone)
@@ -68,7 +65,7 @@ defmodule Scenic.Clock.Digital do
       timezone: timezone,
       timer: nil,
       last: nil,
-      seconds: !!opts[:seconds]
+      seconds: !!styles[:seconds]
     }
     # start up the graph
     |> update_time()
