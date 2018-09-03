@@ -79,7 +79,7 @@ defmodule Scenic.Clock.Components do
   end
 
   def analog_clock( %Primitive{module: Primitive.SceneRef} = p, options ) do
-    modify( p, Component.Analog, nil, options )
+    modify( p, Clock.Analog, nil, options )
   end
 
  #--------------------------------------------------------
@@ -123,7 +123,7 @@ defmodule Scenic.Clock.Components do
   end
 
   def digital_clock( %Primitive{module: Primitive.SceneRef} = p, options ) do
-    modify( p, Component.Digital, nil, options )
+    modify( p, Clock.Digital, nil, options )
   end
 
   #============================================================================
