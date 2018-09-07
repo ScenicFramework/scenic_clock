@@ -36,7 +36,7 @@ defmodule Scenic.Clock.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:scenic, "~> <%= @scenic_version %>"},
+      {:scenic, "~> #{@scenic_version}"},
       # {:scenic, git: "git@github.com:boydm/scenic.git"},
       {:timex, "~> 3.3"},
 
