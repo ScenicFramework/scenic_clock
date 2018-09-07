@@ -1,12 +1,13 @@
 defmodule Scenic.Clock.MixProject do
   use Mix.Project
 
+  @scenic_version "0.7.0"
   @github "https://github.com/boydm/scenic_clock"
 
   def project do
     [
       app: :scenic_clock,
-      version: "0.7.0",
+      version: @scenic_version,
       elixir: "~> 1.7",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
