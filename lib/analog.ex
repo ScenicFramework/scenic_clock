@@ -6,7 +6,10 @@
 
 defmodule Scenic.Clock.Analog do
   @moduledoc """
-  Documentation for ScenicSceneClock.
+  A component that runs an analog clock.
+
+  See the [Components](Scenic.Clock.Components.html#analog_clock/2) module for useage
+
   """
   use Scenic.Component, has_children: false
 

@@ -6,7 +6,11 @@
 
 defmodule Scenic.Clock.Digital do
   @moduledoc """
-  Documentation for ScenicSceneClock.
+  A component that runs an digital clock.
+
+  See the [Components](Scenic.Clock.Components.html#digital_clock/2) module for useage
+
+
   """
   use Scenic.Component, has_children: false
 
