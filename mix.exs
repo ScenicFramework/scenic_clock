@@ -1,6 +1,8 @@
 defmodule Scenic.Clock.MixProject do
   use Mix.Project
 
+  @github "https://github.com/boydm/scenic_clock"
+
   def project do
     [
       app: :scenic_clock,
@@ -14,7 +16,14 @@ defmodule Scenic.Clock.MixProject do
         # source_url:≈ "https://github.com/boydm/scenic_clock",
         # homepage_url: "http://kry10.com",
       ],
-      description: description()
+      description: description(),
+      package: [
+        name: :scenic_math,
+        contributors: ["Boyd Multerer"],
+        maintainers: ["Boyd Multerer"],
+        licenses: ["Apache 2"],
+        links: %{github: @github}
+      ]
     ]
   end
 
@@ -26,8 +35,8 @@ defmodule Scenic.Clock.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      # {:scenic, "~> <%= @scenic_version %>"},
-      {:scenic, git: "git@github.com:boydm/scenic.git"},
+      {:scenic, "~> <%= @scenic_version %>"},
+      # {:scenic, git: "git@github.com:boydm/scenic.git"},
       {:timex, "~> 3.3"},
 
       {:ex_doc, ">= 0.0.0", only: [:dev, :docs]},
