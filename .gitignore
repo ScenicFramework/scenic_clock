@@ -23,3 +23,5 @@ erl_crash.dump
 scenic_clock-*.tar
 
 .DS_Store
+
+mix.lock
