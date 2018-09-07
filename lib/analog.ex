@@ -38,10 +38,12 @@ defmodule Scenic.Clock.Analog do
 
 
   #--------------------------------------------------------
+  @doc false
   def verify( nil ), do: {:ok, nil}
   def verify( _ ), do: :invalid_data
 
   #--------------------------------------------------------
+  @doc false
   def init( _, opts ) do
     styles = opts[:styles]
 
@@ -137,6 +139,7 @@ defmodule Scenic.Clock.Analog do
 
   #--------------------------------------------------------
   # should be shortly after the actual one-second mark
+  @doc false
   def handle_info( :start_clock, state ) do
     # start the timer on a one-second interval
     {:ok, timer} = :timer.send_interval(1000, :second)

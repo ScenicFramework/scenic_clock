@@ -28,10 +28,12 @@ defmodule Scenic.Clock.Digital do
   # @default_theme    :dark
 
   #--------------------------------------------------------
+  @doc false
   def verify( nil ), do: {:ok, nil}
   def verify( _ ), do: :invalid_data
 
   #--------------------------------------------------------
+  @doc false
   def init( _, opts ) do
     styles = opts[:styles]
 
@@ -83,6 +85,7 @@ defmodule Scenic.Clock.Digital do
   end
 
   #--------------------------------------------------------
+  @doc false
   # should be shortly after the actual one-second mark
   def handle_info( :start_clock, state ) do
     # start the timer on a one-second interval
