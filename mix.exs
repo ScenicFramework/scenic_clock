@@ -37,7 +37,7 @@ defmodule Scenic.Clock.MixProject do
   defp deps do
     [
       {:scenic, "~> #{@scenic_version}"},
-      # {:scenic, git: "git@github.com:boydm/scenic.git"},
+
       {:timex, "~> 3.3"},
 
       {:ex_doc, ">= 0.0.0", only: [:dev, :docs]},
