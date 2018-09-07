@@ -1,4 +1,4 @@
-defmodule ScenicClock.MixProject do
+defmodule Scenic.Clock.MixProject do
   use Mix.Project
 
   def project do
@@ -14,6 +14,7 @@ defmodule ScenicClock.MixProject do
         # source_url:≈ "https://github.com/boydm/scenic_clock",
         # homepage_url: "http://kry10.com",
       ],
+      description: description()
     ]
   end
 
@@ -33,5 +34,11 @@ defmodule ScenicClock.MixProject do
       # {:dep_from_hexpm, "~> 0.3.0"},
       # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"},
     ]
+  end
+
+  defp description() do
+    """
+    Scenic.Clock - Analog and Digital clock components for Scenic
+    """
   end
 end
