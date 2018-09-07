@@ -7,7 +7,13 @@ defmodule ScenicClock.MixProject do
       version: "0.7.0",
       elixir: "~> 1.7",
       start_permanent: Mix.env() == :prod,
-      deps: deps()
+      deps: deps(),
+      docs: [
+        main: "Scenic.Clock.Components"
+        # source_ref: "v#{@version}",
+        # source_url:≈ "https://github.com/boydm/scenic_clock",
+        # homepage_url: "http://kry10.com",
+      ],
     ]
   end
 
