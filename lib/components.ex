@@ -17,26 +17,14 @@ defmodule Scenic.Clock.Components do
   @moduledoc """
   A set of helper functions to make it easy to add, or modify, clocks
   to a graph.
-
-
-  THESE DOCS NEED TO BE UPDATED
   """
 
 
   #--------------------------------------------------------
   @doc """
-  Add an analog clock to a graph. There is no required data, only
-  configuration options
+  Add an analog clock to a graph.
 
-
-  ### Options
-
-  Analog clocks honor the following list of extra options.
-  * `:radius` - the radius of the clock's main circle.
-  * `:timezone` - which timezone to display the time in. Should be one of the timezones supported by the Timex Hex package. See `Timex.timezones()`. The default is whatever Timex says is the system timezone.
-  * `:seconds` - `true` or `false`. Show the seconds hand. Note: Showing the seconds hand uses more energy by rendering the scene every second. The default is `false`.
-  * `:ticks` - `true` or `false`. Show ticks marking the hour positions. Default is `true` if the radius is >= 30.
-
+  There is no required data, only styles.
 
   ### Styles
 
@@ -45,6 +33,15 @@ defmodule Scenic.Clock.Components do
   * `:hidden` - If `false` the clock is rendered. If true, it is skipped. The default
     is `false`.
   * `:theme` - The color set used to draw. See below. The default is `:dark`
+
+  ### Additional Styles
+
+  Analog clocks honor the following list of additional styles.
+  * `:radius` - the radius of the clock's main circle.
+  * `:timezone` - which timezone to display the time in. Should be one of the timezones supported by the Timex Hex package. See `Timex.timezones()`. The default is whatever Timex says is the system timezone.
+  * `:seconds` - `true` or `false`. Show the seconds hand. Note: Showing the seconds hand uses more energy by rendering the scene every second. The default is `false`.
+  * `:ticks` - `true` or `false`. Show ticks marking the hour positions. Default is `true` if the radius is >= 30.
+
 
   ## Theme
 
@@ -84,23 +81,20 @@ defmodule Scenic.Clock.Components do
 
  #--------------------------------------------------------
   @doc """
-  Add an digital clock to a graph. There is no required data, only
-  configuration options
+  Add an digital clock to a graph.
 
-
-  ### Options
-
-  Digital clocks honor the following list of extra options.
-  * `:timezone` - which timezone to display the time in. Should be one of the timezones supported by the Timex Hex package. See `Timex.timezones()`. The default is whatever Timex sais is the system timexone.
-  * `:format` - strftime format for the time string. Default is `"%a %l:%M %p"`.
-
-  For help building a strftime format, see [https://foragoodstrftime.com/](https://foragoodstrftime.com/).
-
+  There is no required data, only configuration options.
 
   ### Styles
 
   Digital Clocks honors all the styles you would expect to render text.
   
+  ### Additional Styles
+
+  Digital clocks honor the following list of additional styles.
+  * `:timezone` - which timezone to display the time in. Should be one of the timezones supported by the Timex Hex package. See `Timex.timezones()`. The default is whatever Timex sais is the system timexone.
+  * `:format` - [strftime](https://www.foragoodstrftime.com/) format for the time string. Default is `"%a %l:%M %p"`.
+
 
   ## Theme
 
