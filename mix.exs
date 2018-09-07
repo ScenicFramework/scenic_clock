@@ -19,7 +19,7 @@ defmodule Scenic.Clock.MixProject do
       ],
       description: description(),
       package: [
-        name: :scenic_math,
+        name: :scenic_clock,
         contributors: ["Boyd Multerer"],
         maintainers: ["Boyd Multerer"],
         licenses: ["Apache 2"],
