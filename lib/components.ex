@@ -19,8 +19,7 @@ defmodule Scenic.Clock.Components do
   to a graph.
   """
 
-
-  #--------------------------------------------------------
+  # --------------------------------------------------------
   @doc """
   Add an analog clock to a graph.
 
@@ -29,7 +28,7 @@ defmodule Scenic.Clock.Components do
   ### Styles
 
   Analog Clocks honor the following styles
-  
+
   * `:hidden` - If `false` the clock is rendered. If true, it is skipped. The default
     is `false`.
   * `:theme` - The color set used to draw. See below. The default is `:dark`
@@ -69,17 +68,17 @@ defmodule Scenic.Clock.Components do
 
 
   """
-  def analog_clock( graph, options \\ [] )
+  def analog_clock(graph, options \\ [])
 
-  def analog_clock( %Graph{} = g, options ) do
-    add_to_graph( g, Clock.Analog, nil, options )
+  def analog_clock(%Graph{} = g, options) do
+    add_to_graph(g, Clock.Analog, nil, options)
   end
 
-  def analog_clock( %Primitive{module: Primitive.SceneRef} = p, options ) do
-    modify( p, Clock.Analog, nil, options )
+  def analog_clock(%Primitive{module: Primitive.SceneRef} = p, options) do
+    modify(p, Clock.Analog, nil, options)
   end
 
- #--------------------------------------------------------
+  # --------------------------------------------------------
   @doc """
   Add an digital clock to a graph.
 
@@ -88,7 +87,7 @@ defmodule Scenic.Clock.Components do
   ### Styles
 
   Digital Clocks honors all the styles you would expect to render text.
-  
+
   ### Additional Styles
 
   Digital clocks honor the following list of additional styles.
@@ -110,34 +109,26 @@ defmodule Scenic.Clock.Components do
 
 
   """
-  def digital_clock( graph, options \\ [] )
+  def digital_clock(graph, options \\ [])
 
-  def digital_clock( %Graph{} = g, options ) do
-    add_to_graph( g, Clock.Digital, nil, options )
+  def digital_clock(%Graph{} = g, options) do
+    add_to_graph(g, Clock.Digital, nil, options)
   end
 
-  def digital_clock( %Primitive{module: Primitive.SceneRef} = p, options ) do
-    modify( p, Clock.Digital, nil, options )
+  def digital_clock(%Primitive{module: Primitive.SceneRef} = p, options) do
+    modify(p, Clock.Digital, nil, options)
   end
 
-  #============================================================================
+  # ============================================================================
   # internal utilities
 
-  defp add_to_graph( %Graph{} = g, mod, data, options ) do
+  defp add_to_graph(%Graph{} = g, mod, data, options) do
     mod.verify!(data)
     mod.add_to_graph(g, data, options)
   end
 
-  defp modify( %Primitive{module: Primitive.SceneRef} = p, mod, data, options ) do
+  defp modify(%Primitive{module: Primitive.SceneRef} = p, mod, data, options) do
     mod.verify!(data)
-    Primitive.put( p, {mod, data}, options )
+    Primitive.put(p, {mod, data}, options)
   end
-
-
 end
-
-
-
-
-
-

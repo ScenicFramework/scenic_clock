@@ -3,7 +3,6 @@
 #  Copyright © 2018 Kry10 Industries. All rights reserved.
 #
 
-
 defmodule Scenic.Clock.Analog do
   @moduledoc """
   A component that runs an analog clock.
@@ -16,49 +15,52 @@ defmodule Scenic.Clock.Analog do
   alias Scenic.Graph
   alias Scenic.Primitive.Style.Theme
 
-
   # alias Scenic.Component.Input.Dropdown
-  import Scenic.Primitives, only: [
-    {:circle, 3}, {:line, 3}, {:update_opts, 2}
-  ]
+  import Scenic.Primitives,
+    only: [
+      {:circle, 3},
+      {:line, 3},
+      {:update_opts, 2}
+    ]
 
   # import IEx
 
   # analog clock setup
-  @default_radius  10
-  @two_pi         2 * :math.pi()
-  @back_size_ratio    0.1
-  @hour_size_ratio    -0.6
-  @minute_size_ratio  -0.9
-  @second_size_ratio  -0.9
-  @tick_ratio  0.08
+  @default_radius 10
+  @two_pi 2 * :math.pi()
+  @back_size_ratio 0.1
+  @hour_size_ratio -0.6
+  @minute_size_ratio -0.9
+  @second_size_ratio -0.9
+  @tick_ratio 0.08
 
-  @min_radius_for_default_ticks   30
+  @min_radius_for_default_ticks 30
 
   @default_timezone "GMT"
 
-  @default_theme  :dark
+  @default_theme :dark
 
-
-  #--------------------------------------------------------
+  # --------------------------------------------------------
   @doc false
-  def verify( nil ), do: {:ok, nil}
-  def verify( _ ), do: :invalid_data
+  def verify(nil), do: {:ok, nil}
+  def verify(_), do: :invalid_data
 
-  #--------------------------------------------------------
+  # --------------------------------------------------------
   @doc false
-  def init( _, opts ) do
+  def init(_, opts) do
     styles = opts[:styles]
 
     # theme is passed in as an inherited style
-    theme = (styles[:theme] || Theme.preset(@default_theme))
-    |> Theme.normalize()
+    theme =
+      (styles[:theme] || Theme.preset(@default_theme))
+      |> Theme.normalize()
 
     # confirm the timezone
-    timezone = case  Enum.member?(Timex.timezones(), styles[:timezone]) do
-      true -> styles[:timezone]
-      false -> Timex.Timezone.local() || @default_timezone
-    end
+    timezone =
+      case Enum.member?(Timex.timezones(), styles[:timezone]) do
+        true -> styles[:timezone]
+        false -> Timex.Timezone.local() || @default_timezone
+      end
 
     # get and calc the sizes 
     radius = styles[:radius] || @default_radius
@@ -67,66 +69,83 @@ defmodule Scenic.Clock.Analog do
     minute_size = radius * @minute_size_ratio
     second_size = radius * @second_size_ratio
 
-    thick = cond do
-      radius > 40 -> 2
-      true -> 1.2
-    end
+    thick =
+      cond do
+        radius > 40 -> 2
+        true -> 1.2
+      end
 
     hour_color = Map.get(theme, :hours, theme.border)
     minute_color = Map.get(theme, :minutes, theme.border)
 
-
-
     # set up the main part of the clock
-    graph = Graph.build()
-    |> circle(radius, fill: theme.background, stroke: {thick, theme.border})
-    |> line({{0,back_size}, {0, hour_size}}, pin: {0,0}, stroke: {thick, hour_color}, id: :hour_hand)
-    |> line({{0,back_size}, {0, minute_size}}, pin: {0,0}, stroke: {thick, minute_color}, id: :minute_hand)
+    graph =
+      Graph.build()
+      |> circle(radius, fill: theme.background, stroke: {thick, theme.border})
+      |> line({{0, back_size}, {0, hour_size}},
+        pin: {0, 0},
+        stroke: {thick, hour_color},
+        id: :hour_hand
+      )
+      |> line({{0, back_size}, {0, minute_size}},
+        pin: {0, 0},
+        stroke: {thick, minute_color},
+        id: :minute_hand
+      )
 
     # add the optional second hand if requested
-    graph = case !!styles[:seconds] do
-      true ->
-        second_color = Map.get(theme, :second, theme.border)
-        line(
-          graph,
-          {{0,back_size}, {0, second_size}},
-          pin: {0,0}, stroke: {thick, second_color}, id: :second_hand
-        )
+    graph =
+      case !!styles[:seconds] do
+        true ->
+          second_color = Map.get(theme, :second, theme.border)
 
-      false ->
-        graph
-    end
+          line(
+            graph,
+            {{0, back_size}, {0, second_size}},
+            pin: {0, 0},
+            stroke: {thick, second_color},
+            id: :second_hand
+          )
+
+        false ->
+          graph
+      end
 
     # add the tick marks if requested
-    graph = case styles[:ticks] do
-      nil -> radius >= @min_radius_for_default_ticks
-      _ -> !!styles[:ticks]
-    end
-    |> case do
-      true ->
-        angle = @two_pi / 12
-        tick_size = @tick_ratio * radius
-        Enum.reduce(1..12, graph, fn(n,g) ->
-          line( g,
-            {{0,radius - tick_size}, {0, radius}},
-            stroke: {thick, theme.border},
-            pin: {0,0}, rotate: n * angle
-          )
-        end)
+    graph =
+      case styles[:ticks] do
+        nil -> radius >= @min_radius_for_default_ticks
+        _ -> !!styles[:ticks]
+      end
+      |> case do
+        true ->
+          angle = @two_pi / 12
+          tick_size = @tick_ratio * radius
 
-      false ->
-        graph
-    end
+          Enum.reduce(1..12, graph, fn n, g ->
+            line(
+              g,
+              {{0, radius - tick_size}, {0, radius}},
+              stroke: {thick, theme.border},
+              pin: {0, 0},
+              rotate: n * angle
+            )
+          end)
 
-    state = %{
-      graph: graph,
-      timezone: timezone,
-      timer: nil,
-      last: nil,
-      seconds: !!styles[:seconds]
-    }
-    # start up the graph
-    |> update_time()
+        false ->
+          graph
+      end
+
+    state =
+      %{
+        graph: graph,
+        timezone: timezone,
+        timer: nil,
+        last: nil,
+        seconds: !!styles[:seconds]
+      }
+      # start up the graph
+      |> update_time()
 
     # send a message to self to start the clock a fraction of a second
     # into the future to hopefully line it up closer to when the seconds
@@ -134,44 +153,47 @@ defmodule Scenic.Clock.Analog do
     # the one second mark, which is way better than just slighty before.
     # avoid trunc errors and such that way even if it means the second
     # timer is one millisecond behind the actual time.
-    {microseconds,_} = Time.utc_now.microsecond
-    Process.send_after(self(), :start_clock, 1001 - trunc(microseconds / 1000) )
+    {microseconds, _} = Time.utc_now().microsecond
+    Process.send_after(self(), :start_clock, 1001 - trunc(microseconds / 1000))
 
-    {:ok, state }
+    {:ok, state}
   end
 
-  #--------------------------------------------------------
+  # --------------------------------------------------------
   # should be shortly after the actual one-second mark
   @doc false
-  def handle_info( :start_clock, state ) do
+  def handle_info(:start_clock, state) do
     # start the timer on a one-second interval
     {:ok, timer} = :timer.send_interval(1000, :second)
 
     # update the clock
-    state = update_time( state )
+    state = update_time(state)
 
-    {:noreply, %{state | timer: timer} }
+    {:noreply, %{state | timer: timer}}
   end
 
-  #--------------------------------------------------------
-  def handle_info( :second, state ) do
-    {:noreply, update_time( state )}
+  # --------------------------------------------------------
+  def handle_info(:second, state) do
+    {:noreply, update_time(state)}
   end
 
-  #--------------------------------------------------------
-  defp update_time( %{
-    graph: graph,
-    timezone: timezone,
-    seconds: seconds,
-    last: last
-  } = state ) do
+  # --------------------------------------------------------
+  defp update_time(
+         %{
+           graph: graph,
+           timezone: timezone,
+           seconds: seconds,
+           last: last
+         } = state
+       ) do
     time = Timex.now(timezone)
 
-    new_last = if seconds do
-      time.second
-    else
-      time.minute
-    end
+    new_last =
+      if seconds do
+        time.second
+      else
+        time.minute
+      end
 
     if new_last != last do
       # get the hour and minutes as a percent of the circle
@@ -180,41 +202,23 @@ defmodule Scenic.Clock.Analog do
       # get the hour and minutes as a percent of the circle
       minute_percent = (time.minute + second_percent) / 60.0
 
-      hour = cond do
-        time.hour >= 12 -> time.hour - 12
-        true -> time.hour
-      end
+      hour =
+        cond do
+          time.hour >= 12 -> time.hour - 12
+          true -> time.hour
+        end
+
       hour_percent = (hour + minute_percent) / 12.0
 
       # convert to radians and apply as a rotation matrix
       # a full circle is 2 radians...
       graph
-      |> Graph.modify( :hour_hand, &update_opts(&1, r: @two_pi * hour_percent) )
-      |> Graph.modify( :minute_hand, &update_opts(&1, r: @two_pi * minute_percent) )
-      |> Graph.modify( :second_hand, &update_opts(&1, r: @two_pi * second_percent) )
+      |> Graph.modify(:hour_hand, &update_opts(&1, r: @two_pi * hour_percent))
+      |> Graph.modify(:minute_hand, &update_opts(&1, r: @two_pi * minute_percent))
+      |> Graph.modify(:second_hand, &update_opts(&1, r: @two_pi * second_percent))
       |> push_graph()
     end
 
     %{state | last: new_last}
   end
-
 end
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
