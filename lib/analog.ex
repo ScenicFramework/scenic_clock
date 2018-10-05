@@ -58,11 +58,18 @@ defmodule Scenic.Clock.Analog do
     # confirm the timezone
     timezone =
       case Enum.member?(Timex.timezones(), styles[:timezone]) do
-        true -> styles[:timezone]
-        false -> Timex.Timezone.local() || @default_timezone
+        true ->
+          styles[:timezone]
+
+        false ->
+          try do
+            Timex.Timezone.local()
+          rescue
+            _invalid_tz -> @default_timezone
+          end
       end
 
-    # get and calc the sizes 
+    # get and calc the sizes
     radius = styles[:radius] || @default_radius
     back_size = radius * @back_size_ratio
     hour_size = radius * @hour_size_ratio

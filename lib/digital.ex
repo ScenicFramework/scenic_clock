@@ -42,8 +42,15 @@ defmodule Scenic.Clock.Digital do
     # get the timezone
     timezone =
       case Enum.member?(Timex.timezones(), styles[:timezone]) do
-        true -> styles[:timezone]
-        false -> Timex.Timezone.local() || @default_timezone
+        true ->
+          styles[:timezone]
+
+        false ->
+          try do
+            Timex.Timezone.local()
+          rescue
+            _invalid_tz -> @default_timezone
+          end
       end
 
     # get and validate the requested time format

@@ -1,7 +1,7 @@
 defmodule Scenic.Clock.MixProject do
   use Mix.Project
 
-  @version "0.8.0"
+  @version "0.8.1"
   @github "https://github.com/boydm/scenic_clock"
 
   def project do
@@ -37,7 +37,7 @@ defmodule Scenic.Clock.MixProject do
   defp deps do
     [
       {:scenic, "~> 0.8"},
-      {:timex, "~> 3.3"},
+      {:timex, "~> 3.4"},
       {:ex_doc, ">= 0.0.0", only: [:dev, :docs]}
     ]
   end
