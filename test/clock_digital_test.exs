@@ -16,17 +16,15 @@ defmodule Scenic.Clock.DigitalTest do
   }
 
   test "init" do
-    {:ok, _, push: _} =
-      Scenic.Clock.Analog.init( nil, styles: %{} )
+    {:ok, _, push: _} = Scenic.Clock.Analog.init(nil, styles: %{})
   end
 
   test "handle_info start_clock" do
-    {:noreply, state, push: _} = Scenic.Clock.Analog.handle_info( :start_clock, @state )
+    {:noreply, state, push: _} = Scenic.Clock.Analog.handle_info(:start_clock, @state)
     assert state.timer
   end
 
   test "handle_info tick_tock" do
-    {:noreply, _, push: _} = Scenic.Clock.Analog.handle_info( :start_clock, @state )
+    {:noreply, _, push: _} = Scenic.Clock.Analog.handle_info(:start_clock, @state)
   end
-
 end
