@@ -37,7 +37,6 @@ defmodule Scenic.Clock.Components do
 
   Analog clocks honor the following list of additional styles.
   * `:radius` - the radius of the clock's main circle.
-  * `:timezone` - which timezone to display the time in. Should be one of the timezones supported by the Timex Hex package. See `Timex.timezones()`. The default is whatever Timex says is the system timezone.
   * `:seconds` - `true` or `false`. Show the seconds hand. Note: Showing the seconds hand uses more energy by rendering the scene every second. The default is `false`.
   * `:ticks` - `true` or `false`. Show ticks marking the hour positions. Default is `true` if the radius is >= 30.
 
@@ -91,9 +90,7 @@ defmodule Scenic.Clock.Components do
   ### Additional Styles
 
   Digital clocks honor the following list of additional styles.
-  * `:timezone` - which timezone to display the time in. Should be one of the timezones supported by the Timex Hex package. See `Timex.timezones()`. The default is whatever Timex sais is the system timexone.
-  * `:format` - [strftime](https://www.foragoodstrftime.com/) format for the time string. Default is `"%a %l:%M %p"`.
-
+  * `:format` - `:hours_12` or `:hours_24`. The default is `:hours_12`.
 
   ## Theme
 
