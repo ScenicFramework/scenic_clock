@@ -36,8 +36,6 @@ defmodule Scenic.Clock.Analog do
 
   @min_radius_for_default_ticks 30
 
-  @default_timezone "GMT"
-
   @default_theme :dark
 
   # --------------------------------------------------------
@@ -54,13 +52,6 @@ defmodule Scenic.Clock.Analog do
     theme =
       (styles[:theme] || Theme.preset(@default_theme))
       |> Theme.normalize()
-
-    # confirm the timezone
-    timezone =
-      case Enum.member?(Timex.timezones(), styles[:timezone]) do
-        true -> styles[:timezone]
-        false -> Timex.Timezone.local() || @default_timezone
-      end
 
     # get and calc the sizes 
     radius = styles[:radius] || @default_radius
@@ -136,10 +127,9 @@ defmodule Scenic.Clock.Analog do
           graph
       end
 
-    state =
+    {state, graph} =
       %{
         graph: graph,
-        timezone: timezone,
         timer: nil,
         last: nil,
         seconds: !!styles[:seconds]
@@ -156,7 +146,7 @@ defmodule Scenic.Clock.Analog do
     {microseconds, _} = Time.utc_now().microsecond
     Process.send_after(self(), :start_clock, 1001 - trunc(microseconds / 1000))
 
-    {:ok, state}
+    {:ok, state, push: graph}
   end
 
   # --------------------------------------------------------
@@ -164,61 +154,62 @@ defmodule Scenic.Clock.Analog do
   @doc false
   def handle_info(:start_clock, state) do
     # start the timer on a one-second interval
-    {:ok, timer} = :timer.send_interval(1000, :second)
+    {:ok, timer} = :timer.send_interval(1000, :tick_tock)
 
     # update the clock
-    state = update_time(state)
+    {state, graph} = update_time(state)
 
-    {:noreply, %{state | timer: timer}}
+    {:noreply, %{state | timer: timer}, push: graph}
   end
 
   # --------------------------------------------------------
-  def handle_info(:second, state) do
-    {:noreply, update_time(state)}
+  def handle_info(:tick_tock, state) do
+    {state, graph} = update_time(state)
+    {:noreply, state, push: graph}
   end
 
   # --------------------------------------------------------
   defp update_time(
          %{
            graph: graph,
-           timezone: timezone,
            seconds: seconds,
            last: last
          } = state
        ) do
-    time = Timex.now(timezone)
+    {_, {h, m, s}} = time = :calendar.local_time()
+    base_time = base_time(time, seconds)
 
-    new_last =
-      if seconds do
-        time.second
-      else
-        time.minute
-      end
+    case base_time != last do
+      true ->
+        # get the hour and minutes as a percent of the circle
+        second_percent = s / 60.0
 
-    if new_last != last do
-      # get the hour and minutes as a percent of the circle
-      second_percent = time.second / 60.0
+        # get the hour and minutes as a percent of the circle
+        minute_percent = (m + second_percent) / 60.0
 
-      # get the hour and minutes as a percent of the circle
-      minute_percent = (time.minute + second_percent) / 60.0
+        hour =
+          cond do
+            h >= 12 -> h - 12
+            true -> h
+          end
 
-      hour =
-        cond do
-          time.hour >= 12 -> time.hour - 12
-          true -> time.hour
-        end
+        hour_percent = (hour + minute_percent) / 12.0
 
-      hour_percent = (hour + minute_percent) / 12.0
+        # convert to radians and apply as a rotation matrix
+        # a full circle is 2 radians...
+        graph =
+          graph
+          |> Graph.modify(:hour_hand, &update_opts(&1, r: @two_pi * hour_percent))
+          |> Graph.modify(:minute_hand, &update_opts(&1, r: @two_pi * minute_percent))
+          |> Graph.modify(:second_hand, &update_opts(&1, r: @two_pi * second_percent))
 
-      # convert to radians and apply as a rotation matrix
-      # a full circle is 2 radians...
-      graph
-      |> Graph.modify(:hour_hand, &update_opts(&1, r: @two_pi * hour_percent))
-      |> Graph.modify(:minute_hand, &update_opts(&1, r: @two_pi * minute_percent))
-      |> Graph.modify(:second_hand, &update_opts(&1, r: @two_pi * second_percent))
-      |> push_graph()
+        {%{state | last: base_time}, graph}
+
+      _ ->
+        {state, nil}
     end
-
-    %{state | last: new_last}
   end
+
+  defp base_time(time, true), do: time
+  defp base_time({d, {h, m, _}}, false), do: {d, {h, m}}
 end
