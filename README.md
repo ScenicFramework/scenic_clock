@@ -14,10 +14,12 @@ by adding `scenic_clock` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:scenic_clock, "~> 0.7.0"}
+    {:scenic_clock, "~> 0.10"}
   ]
 end
 ```
+
+Note that version v0.10 requires Scenic v0.10 or higher.
 
 Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
 and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
