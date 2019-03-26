@@ -8,7 +8,7 @@ defmodule Scenic.Clock.MixProject do
     [
       app: :scenic_clock,
       version: @version,
-      elixir: "~> 1.7",
+      elixir: "~> 1.8",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       docs: [
@@ -36,8 +36,7 @@ defmodule Scenic.Clock.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      # {:scenic, "~> 0.10"},
-      {:scenic, git: "https://github.com/boydm/scenic.git"},
+      {:scenic, "~> 0.10"},
       {:ex_doc, ">= 0.0.0", only: [:dev, :docs]}
     ]
   end
