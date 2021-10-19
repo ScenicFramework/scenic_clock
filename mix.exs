@@ -1,7 +1,7 @@
 defmodule Scenic.Clock.MixProject do
   use Mix.Project
 
-  @version "0.10.0"
+  @version "0.11.0"
   @github "https://github.com/boydm/scenic_clock"
 
   def project do
@@ -24,9 +24,14 @@ defmodule Scenic.Clock.MixProject do
         maintainers: ["Boyd Multerer"],
         licenses: ["Apache 2"],
         links: %{github: @github}
-      ]
+      ],
+      elixirc_paths: elixirc_paths(Mix.env())
     ]
   end
+
+  # Specifies which paths to compile per environment.
+  defp elixirc_paths(:test), do: ["lib", "test/support"]
+  defp elixirc_paths(_), do: ["lib"]
 
   # Run "mix help compile.app" to learn about applications.
   def application do
@@ -36,8 +41,10 @@ defmodule Scenic.Clock.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:scenic, "~> 0.10"},
-      {:ex_doc, ">= 0.0.0", only: [:dev, :docs]}
+      # {:scenic, "~> 0.11"},
+      {:scenic, git: "https://github.com/boydm/scenic.git", branch: "v0.11"},
+      {:ex_doc, ">= 0.0.0", only: [:dev, :docs]},
+      {:dialyxir, "~> 1.1", only: :dev, runtime: false}
     ]
   end
 

@@ -40,21 +40,33 @@ defmodule Scenic.Clock.Analog do
 
   # --------------------------------------------------------
   @doc false
-  def verify(nil), do: {:ok, nil}
-  def verify(_), do: :invalid_data
+  @impl Scenic.Component
+  def validate(nil), do: {:ok, nil}
+
+  def validate(data) do
+    {
+      :error,
+      """
+      #{IO.ANSI.red()}Invalid Scenic.Clock.Analog
+      Received: #{inspect(data)}
+      #{IO.ANSI.yellow()}
+      """
+    }
+  end
 
   # --------------------------------------------------------
   @doc false
-  def init(_, opts) do
-    styles = opts[:styles]
+  @impl Scenic.Scene
+  def init(scene, _param, opts) do
+    styles = Keyword.get(opts, :styles, [])
 
     # theme is passed in as an inherited style
     theme =
-      (styles[:theme] || Theme.preset(@default_theme))
+      (opts[:theme] || Theme.preset(@default_theme))
       |> Theme.normalize()
 
     # get and calc the sizes 
-    radius = styles[:radius] || @default_radius
+    radius = opts[:radius] || @default_radius
     back_size = radius * @back_size_ratio
     hour_size = radius * @hour_size_ratio
     minute_size = radius * @minute_size_ratio
@@ -71,7 +83,7 @@ defmodule Scenic.Clock.Analog do
 
     # set up the main part of the clock
     graph =
-      Graph.build()
+      Graph.build(styles)
       |> circle(radius, fill: theme.background, stroke: {thick, theme.border})
       |> line({{0, back_size}, {0, hour_size}},
         pin: {0, 0},
@@ -86,7 +98,7 @@ defmodule Scenic.Clock.Analog do
 
     # add the optional second hand if requested
     graph =
-      case !!styles[:seconds] do
+      case !!opts[:seconds] do
         true ->
           second_color = Map.get(theme, :second, theme.border)
 
@@ -127,14 +139,14 @@ defmodule Scenic.Clock.Analog do
           graph
       end
 
-    {state, graph} =
-      %{
+    scene =
+      scene
+      |> assign(
         graph: graph,
         timer: nil,
         last: nil,
-        seconds: !!styles[:seconds]
-      }
-      # start up the graph
+        seconds: !!opts[:seconds]
+      )
       |> update_time()
 
     # send a message to self to start the clock a fraction of a second
@@ -146,35 +158,39 @@ defmodule Scenic.Clock.Analog do
     {microseconds, _} = Time.utc_now().microsecond
     Process.send_after(self(), :start_clock, 1001 - trunc(microseconds / 1000))
 
-    {:ok, state, push: graph}
+    {:ok, scene}
   end
 
   # --------------------------------------------------------
   # should be shortly after the actual one-second mark
   @doc false
-  def handle_info(:start_clock, state) do
+  @impl GenServer
+  def handle_info(:start_clock, scene) do
     # start the timer on a one-second interval
     {:ok, timer} = :timer.send_interval(1000, :tick_tock)
 
-    # update the clock
-    {state, graph} = update_time(state)
+    scene =
+      scene
+      |> assign(:timer, timer)
+      |> update_time()
 
-    {:noreply, %{state | timer: timer}, push: graph}
+    {:noreply, scene}
   end
 
   # --------------------------------------------------------
-  def handle_info(:tick_tock, state) do
-    {state, graph} = update_time(state)
-    {:noreply, state, push: graph}
+  def handle_info(:tick_tock, scene) do
+    {:noreply, update_time(scene)}
   end
 
   # --------------------------------------------------------
   defp update_time(
          %{
-           graph: graph,
-           seconds: seconds,
-           last: last
-         } = state
+           assigns: %{
+             graph: graph,
+             seconds: seconds,
+             last: last
+           }
+         } = scene
        ) do
     {_, {h, m, s}} = time = :calendar.local_time()
     base_time = base_time(time, seconds)
@@ -203,10 +219,12 @@ defmodule Scenic.Clock.Analog do
           |> Graph.modify(:minute_hand, &update_opts(&1, r: @two_pi * minute_percent))
           |> Graph.modify(:second_hand, &update_opts(&1, r: @two_pi * second_percent))
 
-        {%{state | last: base_time}, graph}
+        scene
+        |> assign(:graph, graph)
+        |> push_graph(graph)
 
       _ ->
-        {state, nil}
+        scene
     end
   end
 

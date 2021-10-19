@@ -67,14 +67,22 @@ defmodule Scenic.Clock.Components do
 
 
   """
+  @spec analog_clock(
+          source :: Graph.t() | Primitive.t(),
+          options :: list
+        ) :: Graph.t() | Primitive.t()
+
   def analog_clock(graph, options \\ [])
 
   def analog_clock(%Graph{} = g, options) do
-    add_to_graph(g, Clock.Analog, nil, options)
+    add_to_graph(g, Clock.Analog, options)
   end
 
-  def analog_clock(%Primitive{module: Primitive.SceneRef} = p, options) do
-    modify(p, Clock.Analog, nil, options)
+  def analog_clock(
+        %Primitive{module: Primitive.Component, data: {Clock.Analog, _, _}} = p,
+        options
+      ) do
+    modify(p, options)
   end
 
   # --------------------------------------------------------
@@ -106,26 +114,32 @@ defmodule Scenic.Clock.Components do
 
 
   """
+  @spec digital_clock(
+          source :: Graph.t() | Primitive.t(),
+          options :: list
+        ) :: Graph.t() | Primitive.t()
+
   def digital_clock(graph, options \\ [])
 
   def digital_clock(%Graph{} = g, options) do
-    add_to_graph(g, Clock.Digital, nil, options)
+    add_to_graph(g, Clock.Digital, options)
   end
 
-  def digital_clock(%Primitive{module: Primitive.SceneRef} = p, options) do
-    modify(p, Clock.Digital, nil, options)
+  def digital_clock(
+        %Primitive{module: Primitive.Component, data: {Clock.Digital, _, _}} = p,
+        options
+      ) do
+    modify(p, options)
   end
 
   # ============================================================================
   # internal utilities
 
-  defp add_to_graph(%Graph{} = g, mod, data, options) do
-    mod.verify!(data)
-    mod.add_to_graph(g, data, options)
+  defp add_to_graph(%Graph{} = g, mod, options) do
+    mod.add_to_graph(g, nil, options)
   end
 
-  defp modify(%Primitive{module: Primitive.SceneRef} = p, mod, data, options) do
-    mod.verify!(data)
-    Primitive.put(p, {mod, data}, options)
+  defp modify(%Primitive{module: Primitive.Component, data: {mod, nil, id}} = p, options) do
+    Primitive.put(p, {mod, nil, id}, options)
   end
 end
