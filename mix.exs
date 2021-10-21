@@ -41,8 +41,7 @@ defmodule Scenic.Clock.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      # {:scenic, "~> 0.11"},
-      {:scenic, git: "https://github.com/boydm/scenic.git", branch: "v0.11"},
+      {:scenic, "~> 0.11.0-beta.0"},
       {:ex_doc, ">= 0.0.0", only: [:dev, :docs]},
       {:dialyxir, "~> 1.1", only: :dev, runtime: false}
     ]

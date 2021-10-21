@@ -33,9 +33,9 @@ defmodule Scenic.Clock.Components do
     is `false`.
   * `:theme` - The color set used to draw. See below. The default is `:dark`
 
-  ### Additional Styles
+  ### Additional Options
 
-  Analog clocks honor the following list of additional styles.
+  Analog clocks follow the following list of additional options.
   * `:radius` - the radius of the clock's main circle.
   * `:seconds` - `true` or `false`. Show the seconds hand. Note: Showing the seconds hand uses more energy by rendering the scene every second. The default is `false`.
   * `:ticks` - `true` or `false`. Show ticks marking the hour positions. Default is `true` if the radius is >= 30.
@@ -94,10 +94,18 @@ defmodule Scenic.Clock.Components do
   ### Styles
 
   Digital Clocks honors all the styles you would expect to render text.
+  This includes
+  * :font
+  * :font_size
+  * :text_align
+  * :text_base
 
-  ### Additional Styles
+  Note that you must set the font/text styles directly on the component when
+  you use it in a graph. They are not automatically inherited.
 
-  Digital clocks honor the following list of additional styles.
+  ### Additional Options
+
+  Digital clocks support the following list of options.
   * `:format` - `:hours_12` or `:hours_24`. The default is `:hours_12`.
 
   ## Theme
