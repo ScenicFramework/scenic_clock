@@ -33,9 +33,9 @@ defmodule Scenic.Clock.Components do
     is `false`.
   * `:theme` - The color set used to draw. See below. The default is `:dark`
 
-  ### Additional Styles
+  ### Additional Options
 
-  Analog clocks honor the following list of additional styles.
+  Analog clocks follow the following list of additional options.
   * `:radius` - the radius of the clock's main circle.
   * `:seconds` - `true` or `false`. Show the seconds hand. Note: Showing the seconds hand uses more energy by rendering the scene every second. The default is `false`.
   * `:ticks` - `true` or `false`. Show ticks marking the hour positions. Default is `true` if the radius is >= 30.
@@ -67,14 +67,22 @@ defmodule Scenic.Clock.Components do
 
 
   """
+  @spec analog_clock(
+          source :: Graph.t() | Primitive.t(),
+          options :: list
+        ) :: Graph.t() | Primitive.t()
+
   def analog_clock(graph, options \\ [])
 
   def analog_clock(%Graph{} = g, options) do
-    add_to_graph(g, Clock.Analog, nil, options)
+    add_to_graph(g, Clock.Analog, options)
   end
 
-  def analog_clock(%Primitive{module: Primitive.SceneRef} = p, options) do
-    modify(p, Clock.Analog, nil, options)
+  def analog_clock(
+        %Primitive{module: Primitive.Component, data: {Clock.Analog, _, _}} = p,
+        options
+      ) do
+    modify(p, options)
   end
 
   # --------------------------------------------------------
@@ -86,10 +94,18 @@ defmodule Scenic.Clock.Components do
   ### Styles
 
   Digital Clocks honors all the styles you would expect to render text.
+  This includes
+  * :font
+  * :font_size
+  * :text_align
+  * :text_base
 
-  ### Additional Styles
+  Note that you must set the font/text styles directly on the component when
+  you use it in a graph. They are not automatically inherited.
 
-  Digital clocks honor the following list of additional styles.
+  ### Additional Options
+
+  Digital clocks support the following list of options.
   * `:format` - `:hours_12` or `:hours_24`. The default is `:hours_12`.
 
   ## Theme
@@ -106,26 +122,32 @@ defmodule Scenic.Clock.Components do
 
 
   """
+  @spec digital_clock(
+          source :: Graph.t() | Primitive.t(),
+          options :: list
+        ) :: Graph.t() | Primitive.t()
+
   def digital_clock(graph, options \\ [])
 
   def digital_clock(%Graph{} = g, options) do
-    add_to_graph(g, Clock.Digital, nil, options)
+    add_to_graph(g, Clock.Digital, options)
   end
 
-  def digital_clock(%Primitive{module: Primitive.SceneRef} = p, options) do
-    modify(p, Clock.Digital, nil, options)
+  def digital_clock(
+        %Primitive{module: Primitive.Component, data: {Clock.Digital, _, _}} = p,
+        options
+      ) do
+    modify(p, options)
   end
 
   # ============================================================================
   # internal utilities
 
-  defp add_to_graph(%Graph{} = g, mod, data, options) do
-    mod.verify!(data)
-    mod.add_to_graph(g, data, options)
+  defp add_to_graph(%Graph{} = g, mod, options) do
+    mod.add_to_graph(g, nil, options)
   end
 
-  defp modify(%Primitive{module: Primitive.SceneRef} = p, mod, data, options) do
-    mod.verify!(data)
-    Primitive.put(p, {mod, data}, options)
+  defp modify(%Primitive{module: Primitive.Component, data: {mod, nil, id}} = p, options) do
+    Primitive.put(p, {mod, nil, id}, options)
   end
 end

@@ -7,38 +7,42 @@ defmodule Scenic.Clock.Digital do
   @moduledoc """
   A component that runs an digital clock.
 
-  See the [Components](Scenic.Clock.Components.html#digital_clock/2) module for useage
+  See the [Components](Scenic.Clock.Components.html#digital_clock/2) module for usage
 
 
   """
   use Scenic.Component, has_children: false
 
   alias Scenic.Graph
-  alias Scenic.Primitive.Style.Theme
   import Scenic.Primitives, only: [{:text, 2}, {:text, 3}]
 
   # formats setup
   @default_format :hours_12
 
-  @default_theme :dark
+  # --------------------------------------------------------
+  @doc false
+  @impl Scenic.Component
+  def validate(nil), do: {:ok, nil}
+
+  def validate(data) do
+    {
+      :error,
+      """
+      #{IO.ANSI.red()}Invalid Scenic.Clock.Digital
+      Received: #{inspect(data)}
+      #{IO.ANSI.yellow()}
+      """
+    }
+  end
 
   # --------------------------------------------------------
   @doc false
-  def verify(nil), do: {:ok, nil}
-  def verify(_), do: :invalid_data
-
-  # --------------------------------------------------------
-  @doc false
-  def init(_, opts) do
-    styles = opts[:styles]
-
-    # theme is passed in as an inherited style
-    theme =
-      (styles[:theme] || Theme.preset(@default_theme))
-      |> Theme.normalize()
+  @impl Scenic.Scene
+  def init(scene, _param, opts) do
+    styles = Keyword.get(opts, :styles, [])
 
     format =
-      case styles[:format] do
+      case opts[:format] do
         :hours_12 -> :hours_12
         :hours_24 -> :hours_24
         _ -> @default_format
@@ -46,18 +50,17 @@ defmodule Scenic.Clock.Digital do
 
     # set up the requested graph
     graph =
-      Graph.build(styles: styles)
-      |> text("", id: :time, fill: theme.text)
+      Graph.build(styles)
+      |> text("", id: :time)
 
-    {state, graph} =
-      %{
+    scene =
+      scene
+      |> assign(
         graph: graph,
         format: format,
-        timer: nil,
-        last: nil,
-        seconds: !!styles[:seconds]
-      }
-      # start up the graph
+        seconds: !!opts[:seconds]
+      )
+      |> assign_new(timer: nil, last: nil)
       |> update_time()
 
     # send a message to self to start the clock a fraction of a second
@@ -69,35 +72,41 @@ defmodule Scenic.Clock.Digital do
     {microseconds, _} = Time.utc_now().microsecond
     Process.send_after(self(), :start_clock, 1001 - trunc(microseconds / 1000))
 
-    {:ok, state, push: graph}
+    {:ok, scene}
   end
 
   # --------------------------------------------------------
   @doc false
   # should be shortly after the actual one-second mark
-  def handle_info(:start_clock, state) do
+  @impl GenServer
+  def handle_info(:start_clock, scene) do
     # start the timer on a one-second interval
     {:ok, timer} = :timer.send_interval(1000, :tick_tock)
 
+    scene =
+      scene
+      |> assign(:timer, timer)
+      |> update_time()
+
     # update the clock
-    {state, graph} = update_time(state)
-    {:noreply, %{state | timer: timer}, push: graph}
+    {:noreply, scene}
   end
 
   # --------------------------------------------------------
-  def handle_info(:tick_tock, state) do
-    {state, graph} = update_time(state)
-    {:noreply, state, push: graph}
+  def handle_info(:tick_tock, scene) do
+    {:noreply, update_time(scene)}
   end
 
   # --------------------------------------------------------
   defp update_time(
          %{
-           format: format,
-           seconds: seconds,
-           graph: graph,
-           last: last
-         } = state
+           assigns: %{
+             format: format,
+             seconds: seconds,
+             graph: graph,
+             last: last
+           }
+         } = scene
        ) do
     time = :calendar.local_time()
     base_time = base_time(time, seconds)
@@ -105,10 +114,13 @@ defmodule Scenic.Clock.Digital do
     case base_time != last do
       true ->
         graph = Graph.modify(graph, :time, &text(&1, format_time(time, format, seconds)))
-        {%{state | last: base_time}, graph}
+
+        scene
+        |> assign(last: base_time, graph: graph)
+        |> push_graph(graph)
 
       _ ->
-        {state, nil}
+        scene
     end
   end
 
