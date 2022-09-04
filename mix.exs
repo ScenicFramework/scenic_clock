@@ -2,7 +2,7 @@ defmodule Scenic.Clock.MixProject do
   use Mix.Project
 
   @version "0.11.0"
-  @github "https://github.com/boydm/scenic_clock"
+  @github "https://github.com/ScenicFramework/scenic_clock"
 
   def project do
     [
