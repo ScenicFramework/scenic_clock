@@ -1,3 +1,6 @@
+## 0.11.0
+* Relatively minor update to work with Scenic 0.11.0
+
 ## 0.10.0
 
 * Updated to work with Scenic v0.10 api
