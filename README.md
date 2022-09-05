@@ -14,7 +14,7 @@ by adding `scenic_clock` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:scenic_clock, "~> 0.10"}
+    {:scenic_clock, "~> 0.11"}
   ]
 end
 ```
