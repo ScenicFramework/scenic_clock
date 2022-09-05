@@ -22,7 +22,7 @@ defmodule Scenic.Clock.MixProject do
         name: :scenic_clock,
         contributors: ["Boyd Multerer"],
         maintainers: ["Boyd Multerer"],
-        licenses: ["Apache 2"],
+        licenses: ["Apache-2.0"],
         links: %{github: @github}
       ],
       elixirc_paths: elixirc_paths(Mix.env())
